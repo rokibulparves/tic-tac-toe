@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState } from "react";
 
 function Square({ value, onSquareClick }) {
@@ -11,17 +12,14 @@ function Square({ value, onSquareClick }) {
   );
 }
 
-export default function Board() {
-  const [square, setSquare] = useState(Array(9).fill(null));
-  const [xNext, setXnext] = useState(true);
-
+function Board({ xNext, square, onPlay }) {
   const winner = calculateWinner(square);
   let status;
 
   if (winner) {
     status = `Winner: ${winner}`;
   } else {
-    status = "Next: " + (xNext ? "X" : "O");
+    status = "Next Player " + (xNext ? "X" : "O");
   }
 
   function handleClick(i) {
@@ -34,8 +32,7 @@ export default function Board() {
     } else {
       nextSquare[i] = "O";
     }
-    setSquare(nextSquare);
-    setXnext(!xNext);
+    onPlay(nextSquare);
   }
   return (
     <>
@@ -59,6 +56,53 @@ export default function Board() {
   );
 }
 
+export default function Game() {
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [xNext, setXnext] = useState(true);
+  const [currentMove, setCurrentMove] = useState(0);
+
+  const currentSquare = history[currentMove];
+
+  function handlePlay(nextSquare) {
+    setXnext(!xNext);
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquare];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
+  }
+
+  function jumpTo(move) {
+    setCurrentMove(move);
+    setXnext(move % 2 === 0);
+  }
+
+  const move = history.map((history, move) => {
+    let description;
+    if (move > 0) {
+      description = `Go to step #${move}`;
+    } else {
+      description = `Start the Game!`;
+    }
+
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    );
+  });
+  console.log(history);
+
+  return (
+    <>
+      <div>
+        <Board square={currentSquare} xNext={xNext} onPlay={handlePlay} />
+      </div>
+      <div>
+        <ol>{move}</ol>
+      </div>
+    </>
+  );
+}
+
 function calculateWinner(square) {
   const lines = [
     [0, 1, 2],
@@ -73,7 +117,7 @@ function calculateWinner(square) {
 
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
-    if ((square[a] && square[a] === square[b], square[a] === square[c])) {
+    if (square[a] && square[a] === square[b] && square[a] === square[c]) {
       return square[a];
     }
   }
