@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
 
+/// feature: Creating the box's and interact with the boxes.
 function Square({ value, onSquareClick }) {
   return (
     <button
@@ -12,6 +13,7 @@ function Square({ value, onSquareClick }) {
   );
 }
 
+/// feature: desides the winner(calcualteWinner is at the end of the project), show which's turn is now to play
 function Board({ xNext, square, onPlay }) {
   const winner = calculateWinner(square);
   let status;
@@ -22,6 +24,7 @@ function Board({ xNext, square, onPlay }) {
     status = "Next Player " + (xNext ? "X" : "O");
   }
 
+  /// feature: stop if X or O wins, pass the each step thorugh onPlay() mehtod to the uplifting state Game component.
   function handleClick(i) {
     if (square[i] || calculateWinner(square)) {
       return;
@@ -70,11 +73,13 @@ export default function Game() {
     setCurrentMove(nextHistory.length - 1);
   }
 
+  /// Jumping to the state if clicked in the history section.
   function jumpTo(move) {
     setCurrentMove(move);
     setXnext(move % 2 === 0);
   }
 
+  /// managing the history by maping through history state.
   const move = history.map((history, move) => {
     let description;
     if (move > 0) {
@@ -83,6 +88,7 @@ export default function Game() {
       description = `Start the Game!`;
     }
 
+    ///creating the histoy as list and adding a button to jump to that state
     return (
       <li key={move}>
         <button onClick={() => jumpTo(move)}>{description}</button>
@@ -94,6 +100,7 @@ export default function Game() {
   return (
     <>
       <div>
+        {/* passing current box input, xNext to show which terms is now to play X or O, and onPlay() method handles each states. */}
         <Board square={currentSquare} xNext={xNext} onPlay={handlePlay} />
       </div>
       <div>
@@ -103,6 +110,7 @@ export default function Game() {
   );
 }
 
+//calculate the winner based on box input
 function calculateWinner(square) {
   const lines = [
     [0, 1, 2],
